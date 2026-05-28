@@ -140,7 +140,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       return;
     }
 
-    // Giới hạn dung lượng 25MB (Giới hạn thông thường của email/Google)
+    // Giới hạn dung lượng 25MB
     const MAX_SIZE = 25 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       setErrorMsg('Dung lượng tệp quá lớn! Tối đa 25MB.');
@@ -256,15 +256,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   // Xem nhanh QR cũ trong lịch sử
   const handlePreviewOldQr = async (item: QRHistoryItem) => {
     try {
-      // Vì không lưu qrCode dạng Base64 trong DB để tránh tốn dung lượng DB, 
-      // ta tạo mã QR mới ngay trên client-side từ link webViewLink bằng API ngoài 
-      // hoặc đơn giản là gọi API để backend sinh nhanh base64 QR.
-      // Cách tối ưu: sinh QR Code bằng Google Chart API hoặc thư viện Client.
-      // Ta có thể dùng thư viện qrcode được tích hợp trên client, nhưng vì qrcode là node-module,
-      // cách nhẹ nhất là sinh QR Code thông qua thư viện API công cộng:
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(item.web_view_link)}`;
-      
-      // Chuyển URL ảnh thành Base64 để đồng nhất định dạng
       setActiveQr({
         fileName: item.file_name,
         webViewLink: item.web_view_link,
@@ -276,43 +268,43 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pb-12 relative">
+    <div className="min-h-screen flex flex-col pb-12 relative bg-slate-50 text-slate-900">
       {/* Background Decorator Blur Spheres */}
       <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none" />
 
-      {/* Navigation Header */}
-      <nav className="w-full border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
+      {/* Navigation Header - Sáng & Trong suốt */}
+      <nav className="w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center">
               <span className="text-white font-extrabold text-lg">Q</span>
             </div>
-            <span className="font-extrabold text-xl tracking-tight hidden sm:inline">
-              ScanTo<span className="text-indigo-400">QR</span>
+            <span className="font-extrabold text-xl tracking-tight hidden sm:inline text-slate-800">
+              Tạo Mã <span className="text-indigo-650">QR</span>
             </span>
           </div>
 
           {/* User Profile & Logout */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 glass-panel px-3 py-1.5 rounded-full border-slate-800">
+            <div className="flex items-center gap-3 glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-white/90 shadow-sm">
               {user.avatar_url ? (
                 <img
                   src={user.avatar_url}
                   alt={user.name}
-                  className="w-7 h-7 rounded-full border border-slate-700 object-cover"
+                  className="w-7 h-7 rounded-full border border-slate-200 object-cover"
                 />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white uppercase">
                   {user.name.charAt(0)}
                 </div>
               )}
-              <span className="text-xs font-semibold text-slate-300 hidden md:inline">{user.name}</span>
+              <span className="text-xs font-semibold text-slate-700 hidden md:inline">{user.name}</span>
             </div>
             
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl border border-slate-800 hover:border-rose-500/30 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 transition-all duration-200 cursor-pointer"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-500 hover:text-rose-600 shadow-sm transition-all duration-200 cursor-pointer"
               title="Đăng xuất"
             >
               <LogOut className="w-4 h-4" />
@@ -325,10 +317,10 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 z-10">
         
         {/* Banner Alert Google Scope */}
-        <div className="mb-8 p-4 rounded-2xl glass-panel border-indigo-500/10 bg-indigo-500/[0.02] flex gap-3 items-start">
-          <Info className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-          <div className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            <strong className="text-slate-200">Lưu ý bảo mật:</strong> Mọi tệp tin bạn tải lên sẽ được chuyển trực tiếp vào thư mục <code className="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded font-mono">ScanToQR_Uploads</code> trên tài khoản Google Drive cá nhân của bạn. Trạng thái chia sẻ của tệp sẽ được đặt thành <span className="text-emerald-400 font-semibold">Công khai (Bất kỳ ai có link đều xem được)</span> để mã QR có thể quét thành công.
+        <div className="mb-8 p-4 rounded-2xl glass-panel border-indigo-100 bg-indigo-50/40 shadow-sm flex gap-3 items-start">
+          <Info className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm text-slate-650 leading-relaxed font-medium">
+            Mọi tệp tin bạn tải lên sẽ được chuyển trực tiếp vào thư mục <code className="text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded font-mono border border-indigo-100/50">ScanToQR_Uploads</code> trên tài khoản Google Drive cá nhân của bạn.
           </div>
         </div>
 
@@ -336,14 +328,14 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           
           {/* Left Column: Upload Section */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="glass-card rounded-3xl p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-60" />
+            <div className="glass-card rounded-3xl p-6 relative overflow-hidden shadow-md border border-slate-100/80 bg-white">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500 to-purple-650 opacity-80" />
               
-              <h2 className="text-lg font-bold mb-1 flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-lg font-bold mb-1 flex items-center gap-2 text-slate-800">
+                <UploadCloud className="w-5 h-5 text-indigo-600" />
                 Tải tệp tin lên
               </h2>
-              <p className="text-slate-400 text-xs mb-6">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
+              <p className="text-slate-500 text-xs mb-6 font-medium">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
 
               {/* Drag Drop Area */}
               <div
@@ -354,8 +346,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 onClick={onButtonClick}
                 className={`w-full py-12 px-4 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 ${
                   dragActive
-                    ? 'border-indigo-400 bg-indigo-500/10 scale-[0.99]'
-                    : 'border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/20'
+                    ? 'border-indigo-500 bg-indigo-50/50 scale-[0.99]'
+                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-350 hover:bg-slate-100/30 shadow-inner'
                 } ${uploading ? 'pointer-events-none opacity-60' : ''}`}
               >
                 <input
@@ -368,32 +360,32 @@ export default function DashboardClient({ user }: DashboardClientProps) {
 
                 {uploading ? (
                   <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
-                    <span className="text-sm font-semibold text-slate-300">Đang tải tệp lên Drive...</span>
+                    <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                    <span className="text-sm font-bold text-slate-700">Đang tải tệp lên Drive...</span>
                     
                     {/* Progress Bar */}
-                    <div className="w-48 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-2">
+                    <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2 border border-slate-200">
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
+                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-650 transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
                   </div>
                 ) : (
                   <>
-                    <div className="w-14 h-14 rounded-full bg-slate-900/60 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-all duration-300">
-                      <UploadCloud className="w-7 h-7" />
+                    <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-300">
+                      <UploadCloud className="w-7 h-7 text-slate-500" />
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-bold text-slate-200">Kéo thả tệp tin vào đây</p>
-                      <p className="text-xs text-slate-500 mt-1">hoặc click để chọn từ thiết bị</p>
+                      <p className="text-sm font-bold text-slate-700">Kéo thả tệp tin vào đây</p>
+                      <p className="text-xs text-slate-500 mt-1 font-medium">hoặc click để chọn từ thiết bị</p>
                     </div>
                   </>
                 )}
               </div>
 
               {errorMsg && (
-                <div className="mt-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start gap-2">
+                <div className="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-150 text-rose-700 text-xs flex items-start gap-2 font-medium">
                   <span className="font-extrabold text-sm shrink-0">⚠</span>
                   <span>{errorMsg}</span>
                 </div>
@@ -403,32 +395,32 @@ export default function DashboardClient({ user }: DashboardClientProps) {
 
           {/* Right Column: Library / History Section */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="glass-card rounded-3xl p-6 min-h-[400px] flex flex-col">
+            <div className="glass-card rounded-3xl p-6 min-h-[400px] flex flex-col shadow-md border border-slate-100 bg-white">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-bold flex items-center gap-2">
-                    <FolderOpen className="w-5 h-5 text-purple-400" />
+                  <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+                    <FolderOpen className="w-5 h-5 text-purple-600" />
                     Thư viện QR cá nhân
                   </h2>
-                  <p className="text-slate-400 text-xs mt-0.5">Danh sách các file và QR code đã chuyển đổi trước đây.</p>
+                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Danh sách các file và QR code đã chuyển đổi trước đây.</p>
                 </div>
-                <div className="text-xs text-slate-500 font-medium glass-panel px-3 py-1 rounded-full border-slate-850">
+                <div className="text-xs text-slate-650 font-bold glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-slate-50 shadow-sm">
                   {history.length} tệp tin
                 </div>
               </div>
 
               {historyLoading ? (
-                <div className="flex-1 flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
-                  <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-                  <span className="text-sm">Đang tải danh sách thư viện...</span>
+                <div className="flex-1 flex flex-col items-center justify-center gap-3 py-20 text-slate-400">
+                  <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+                  <span className="text-sm font-medium">Đang tải danh sách thư viện...</span>
                 </div>
               ) : history.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center py-20 border border-dashed border-slate-900 rounded-2xl bg-slate-950/20">
-                  <div className="w-14 h-14 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 mb-4">
+                <div className="flex-1 flex flex-col items-center justify-center text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                  <div className="w-14 h-14 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 mb-4 shadow-sm">
                     <QrCode className="w-6 h-6" />
                   </div>
-                  <h3 className="font-bold text-slate-300">Thư viện trống</h3>
-                  <p className="text-slate-500 text-xs mt-1 max-w-sm">Bạn chưa tạo mã QR nào. Hãy kéo thả file ở cột bên trái để bắt đầu chia sẻ file.</p>
+                  <h3 className="font-bold text-slate-700">Thư viện trống</h3>
+                  <p className="text-slate-550 text-xs mt-1 max-w-sm font-medium">Bạn chưa tạo mã QR nào. Hãy kéo thả file ở cột bên trái để bắt đầu chia sẻ file.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
@@ -437,24 +429,24 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     return (
                       <div
                         key={item.id}
-                        className="glass-card p-4 rounded-2xl flex flex-col justify-between border-slate-850 bg-slate-950/20 hover:border-slate-800 transition-all duration-300 relative group/card"
+                        className="glass-card p-4 rounded-2xl flex flex-col justify-between border-slate-200 bg-white hover:border-slate-300 shadow-sm hover:shadow-md transition-all duration-300 relative group/card"
                       >
                         {/* File Icon & Name */}
                         <div className="flex gap-3 items-start">
-                          <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
-                            isPdf ? 'bg-rose-500/10 text-rose-400' : 'bg-blue-500/10 text-blue-400'
+                          <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
+                            isPdf ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                           }`}>
                             {isPdf ? <FileText className="w-5 h-5" /> : <FileImage className="w-5 h-5" />}
                           </div>
                           
                           <div className="min-w-0 flex-1">
                             <h4
-                              className="font-bold text-sm text-slate-200 truncate hover:text-indigo-400 transition-all duration-150"
+                              className="font-bold text-sm text-slate-800 truncate hover:text-indigo-600 transition-all duration-150"
                               title={item.file_name}
                             >
                               {truncateFileName(item.file_name, 26)}
                             </h4>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">
+                            <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
                               {new Date(item.created_at).toLocaleDateString('vi-VN', {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -467,11 +459,11 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2 mt-5 pt-3.5 border-t border-slate-900">
+                        <div className="flex gap-2 mt-5 pt-3.5 border-t border-slate-100">
                           {/* Xem QR */}
                           <button
                             onClick={() => handlePreviewOldQr(item)}
-                            className="flex-1 py-1.5 rounded-lg border border-slate-800 hover:border-indigo-500/30 hover:bg-indigo-500/10 text-xs font-semibold text-slate-400 hover:text-indigo-400 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200"
+                            className="flex-1 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/50 text-xs font-bold text-slate-600 hover:text-indigo-600 flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200"
                             title="Xem mã QR"
                           >
                             <QrCode className="w-3.5 h-3.5" />
@@ -483,7 +475,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                             href={item.web_view_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 flex items-center justify-center cursor-pointer transition-all duration-200"
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:border-slate-350 hover:bg-slate-50 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-all duration-200"
                             title="Mở Google Drive"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -492,11 +484,11 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           {/* Copy Link */}
                           <button
                             onClick={() => handleCopyLink(item.web_view_link, item.id)}
-                            className="p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 flex items-center justify-center cursor-pointer transition-all duration-200"
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:border-slate-350 hover:bg-slate-50 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-all duration-200"
                             title="Sao chép liên kết"
                           >
                             {copiedId === item.id ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <Check className="w-3.5 h-3.5 text-emerald-650 font-bold" />
                             ) : (
                               <Copy className="w-3.5 h-3.5" />
                             )}
@@ -506,7 +498,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           <button
                             onClick={() => handleDeleteQr(item.id, item.file_id, item.file_name)}
                             disabled={deletingId === item.id}
-                            className="p-1.5 rounded-lg border border-slate-850 hover:border-rose-500/20 text-slate-600 hover:text-rose-400 flex items-center justify-center cursor-pointer transition-all duration-200 disabled:opacity-50"
+                            className="p-1.5 rounded-lg border border-slate-100 hover:border-rose-200 bg-white hover:bg-rose-50/50 text-slate-400 hover:text-rose-600 flex items-center justify-center cursor-pointer transition-all duration-200 disabled:opacity-50"
                             title="Xóa"
                           >
                             {deletingId === item.id ? (
@@ -529,24 +521,24 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       {/* Success QR Code Modal */}
       {activeQr && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Blur */}
+          {/* Backdrop Blur - Xám mờ nhẹ */}
           <div
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             onClick={() => setActiveQr(null)}
           />
 
           {/* Modal Container */}
-          <div className="glass-panel w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl relative z-10 border-slate-800 max-h-[90vh] flex flex-col animate-scale-up">
+          <div className="glass-panel w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl relative z-10 border-slate-200/80 bg-white/95 max-h-[90vh] flex flex-col animate-scale-up">
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500" />
             
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-900 flex justify-between items-center shrink-0">
-              <h3 className="text-base font-bold text-slate-100 truncate pr-4">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center shrink-0">
+              <h3 className="text-base font-bold text-slate-800 truncate pr-4">
                 {truncateFileName(activeQr.fileName, 35)}
               </h3>
               <button
                 onClick={() => setActiveQr(null)}
-                className="p-1.5 rounded-xl border border-slate-850 hover:border-slate-700 text-slate-400 hover:text-slate-200 cursor-pointer transition-all"
+                className="p-1.5 rounded-xl border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-500 hover:text-slate-800 cursor-pointer transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -555,7 +547,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             {/* Modal Body */}
             <div className="p-6 md:p-8 overflow-y-auto flex-1 flex flex-col items-center">
               {/* QR Image Frame */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-inner inline-block relative group/qr mb-6">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm inline-block relative group/qr mb-6">
                 <img
                   src={activeQr.qrCode}
                   alt="QR Code"
@@ -564,13 +556,13 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               </div>
 
               {/* Status Badge */}
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 mb-8 uppercase tracking-wider">
-                <Check className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/60 mb-8 uppercase tracking-wider">
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
                 Mã QR đã sẵn sàng
               </span>
 
               {/* Information */}
-              <div className="w-full text-center text-xs text-slate-500 leading-relaxed mb-6 glass-panel p-3.5 rounded-2xl border-slate-900 bg-slate-950/40">
+              <div className="w-full text-center text-xs text-slate-650 leading-relaxed mb-6 glass-panel p-3.5 rounded-2xl border-indigo-100/50 bg-indigo-50/10 font-medium">
                 Khi người khác quét mã QR này bằng Camera điện thoại, họ sẽ lập tức được điều hướng đến trình xem của Google Drive.
               </div>
 
@@ -579,7 +571,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 {/* Tải QR */}
                 <button
                   onClick={() => handleDownloadQr(activeQr.qrCode, activeQr.fileName)}
-                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-500/15 active:scale-[0.98] transition-all duration-150 col-span-1"
+                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-650 hover:opacity-95 text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] transition-all duration-150 col-span-1"
                 >
                   <Download className="w-4.5 h-4.5" />
                   Tải QR xuống
@@ -588,11 +580,11 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 {/* Copy Link */}
                 <button
                   onClick={() => handleCopyLink(activeQr.webViewLink)}
-                  className="py-3 px-4 rounded-xl border border-slate-800 hover:border-slate-700 hover:bg-slate-900/30 text-sm font-bold text-slate-200 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-all duration-150 col-span-1"
+                  className="py-3 px-4 rounded-xl border border-slate-200 bg-white hover:border-slate-350 hover:bg-slate-50 text-sm font-bold text-slate-700 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-all duration-150 col-span-1"
                 >
                   {copiedLink ? (
                     <>
-                      <Check className="w-4.5 h-4.5 text-emerald-400" />
+                      <Check className="w-4.5 h-4.5 text-emerald-600 font-bold" />
                       Đã sao chép!
                     </>
                   ) : (
@@ -609,7 +601,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 href={activeQr.webViewLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 text-xs text-slate-400 hover:text-indigo-400 underline transition-all flex items-center gap-1"
+                className="mt-6 text-xs text-slate-500 hover:text-indigo-650 underline font-semibold transition-all flex items-center gap-1"
               >
                 Mở thử xem liên kết Google Drive
                 <ExternalLink className="w-3 h-3" />

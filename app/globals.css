@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #030712; /* Slate-950 */
-  --foreground: #f8fafc; /* Slate-50 */
+  --background: #f8fafc; /* Slate-50 - Nền sáng tươi tắn */
+  --foreground: #0f172a; /* Slate-900 - Chữ tối dễ đọc */
   --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
 }
 
@@ -11,12 +11,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   
-  /* Cấu hình thêm màu sắc Harmonious */
-  --color-brand-primary: #6366f1; /* Indigo-500 */
-  --color-brand-secondary: #a855f7; /* Purple-500 */
-  --color-brand-accent: #3b82f6; /* Blue-500 */
-  --color-glass-bg: rgba(15, 23, 42, 0.65);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
+  /* Cấu hình màu sắc tươi sáng và hài hòa */
+  --color-brand-primary: #4f46e5; /* Indigo-600 */
+  --color-brand-secondary: #9333ea; /* Purple-600 */
+  --color-brand-accent: #2563eb; /* Blue-600 */
+  --color-glass-bg: rgba(255, 255, 255, 0.75);
+  --color-glass-border: rgba(15, 23, 42, 0.06);
 }
 
 body {
@@ -26,7 +26,7 @@ body {
   min-height: 100vh;
 }
 
-/* Các lớp tiện ích tùy biến */
+/* Lớp Glassmorphism thích ứng nền sáng */
 .glass-panel {
   background: var(--color-glass-bg);
   backdrop-filter: blur(16px);
@@ -35,52 +35,54 @@ body {
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.45);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  background: rgba(30, 41, 59, 0.65);
-  border-color: rgba(99, 102, 241, 0.25);
-  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.08);
   transform: translateY(-2px);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #3b82f6 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #4f46e5 50%, #2563eb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-button {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+  color: #ffffff;
   transition: all 0.3s ease;
 }
 
 .gradient-button:hover {
   opacity: 0.95;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
   transform: scale(1.02);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar cho nền sáng */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #030712;
+  background: #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1; /* Slate-300 */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8; /* Slate-400 */
 }

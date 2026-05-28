@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${plusJakartaSans.variable} h-full scroll-smooth`}>
-      <body className="min-h-full bg-slate-950 text-slate-100 font-sans antialiased overflow-x-hidden">
+      <body className="min-h-full bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden">
         {children}
       </body>
     </html>
