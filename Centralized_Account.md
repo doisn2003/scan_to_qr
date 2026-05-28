@@ -106,3 +106,46 @@ Khi bạn muốn triển khai nâng cấp này trong tương lai, dưới đây 
 
 * **Thiết lập lại hoặc thay đổi tài khoản Google của Trường:**
   Bạn chỉ cần truy cập vào đường dẫn ẩn `/api/auth/login` trên trình duyệt. Luồng xác thực Google OAuth sẽ mở ra, bạn đăng nhập tài khoản Google mới và hệ thống sẽ tự động cập nhật lại `refresh_token` mới trong cơ sở dữ liệu. Mọi hoạt động của giáo viên sau đó sẽ tự động chuyển sang lưu trữ trên tài khoản Drive mới này!
+
+---
+
+## 5. Giải pháp phân tách và quản lý Lịch sử QR cho từng Giáo viên
+
+Khi chuyển sang mô hình tài khoản dùng chung (Centralized Account), tuy toàn bộ tệp tin đều được tải lên **một tài khoản Google Drive duy nhất của Trường**, chúng ta vẫn cần đảm bảo mỗi giáo viên chỉ xem và quản lý được danh sách các mã QR do chính mình tạo ra.
+
+### 💡 Giải pháp tối ưu: Định danh bằng "ID Thiết bị" + "Biệt danh Lớp học" kết hợp `localStorage`
+
+Giải pháp này hoàn toàn miễn phí, 100% tự động và cực kỳ mượt mà với người dùng phi kỹ thuật:
+
+#### 1. Khởi tạo & Định danh tự động ở phía Client
+* Khi giáo viên truy cập trang web lần đầu tiên, ứng dụng sẽ kiểm tra trong `localStorage` của trình duyệt trên điện thoại/máy tính của họ:
+  * Nếu chưa có, hệ thống tự động sinh một chuỗi định danh ngẫu nhiên duy nhất (ví dụ: `thietbi_8f9a2b`) và lưu lại dưới tên `teacher_device_id`.
+  * Đồng thời, hệ thống cung cấp một nút nhỏ trên thanh điều hướng cho phép cô đặt **Biệt danh/Lớp học** (ví dụ: `Cô Hoa - Lớp Mầm 1` hoặc `mam_1`) để đồng bộ và dễ quản lý.
+* Thông tin này được lưu trữ vĩnh viễn trong `localStorage` của máy nên cô chỉ cần thao tác **một lần duy nhất** lúc bắt đầu sử dụng.
+
+#### 2. Cải tiến cấu trúc cơ sở dữ liệu (Supabase)
+* Thêm hai cột mới vào bảng `history_qr`:
+  * `device_id` (text): Lưu mã ID thiết bị ngẫu nhiên của giáo viên.
+  * `teacher_name` (text, optional): Lưu biệt danh lớp/tên giáo viên.
+* Thiết lập Index trên cột `device_id` để tăng tốc độ truy vấn lịch sử.
+
+#### 3. Cập nhật luồng xử lý API
+* **Khi tải tệp tin lên (`/api/drive/upload`):**
+  * Client sẽ đính kèm thông tin `device_id` và `teacher_name` (từ `localStorage`) vào dữ liệu gửi lên.
+  * API backend nhận thông tin và lưu kèm vào bảng `history_qr` của cơ sở dữ liệu.
+* **Khi lấy danh sách lịch sử (`/api/drive/history`):**
+  * Client gửi kèm `device_id` của thiết bị trong request.
+  * API backend thực hiện truy vấn lọc:
+    ```sql
+    SELECT * FROM history_qr WHERE device_id = :device_id ORDER BY created_at DESC;
+    ```
+  * Điều này đảm bảo cô Hoa chỉ thấy lịch sử mã QR của lớp cô Hoa, cô Lan chỉ thấy của lớp cô Lan.
+
+#### 4. Khả năng đồng bộ chéo thiết bị
+* Nếu cô Hoa muốn đồng bộ lịch sử mã QR từ điện thoại cá nhân sang máy tính của lớp học, cô chỉ cần nhập cùng một **Biệt danh/Lớp học** (ví dụ: đặt chung là `mam1`) trên cả hai thiết bị.
+* Hệ thống sẽ tự động ghép nhóm dữ liệu theo biệt danh này để lịch sử hiển thị giống nhau trên mọi thiết bị mà cô Hoa sở hữu.
+
+#### 🌟 Điểm cộng vượt trội của mô hình này:
+* **Không cần mật khẩu:** Giáo viên không bao giờ lo quên mật khẩu hay phải khôi phục tài khoản.
+* **Bảo mật và riêng tư tuyệt đối:** Dù dùng chung bộ nhớ lưu trữ Drive của trường, giao diện sử dụng của mỗi giáo viên vẫn hoàn toàn tách biệt và cá nhân hóa.
+* **Admin dễ dàng quản lý:** Vì toàn bộ file thực tế tập trung trên Drive trường, Ban giám hiệu/Admin có thể kiểm duyệt, dọn dẹp hoặc sao lưu dữ liệu toàn trường ở một nơi duy nhất.

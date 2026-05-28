@@ -132,12 +132,17 @@ export async function GET(request: NextRequest) {
     // Tạo response chuyển hướng đến Dashboard
     const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
 
-    // Lưu session vào HTTP-only cookie, an toàn, thời hạn 30 ngày
+    const maxAge = 365 * 24 * 60 * 60; // 1 năm (365 ngày)
+    const expires = new Date();
+    expires.setTime(expires.getTime() + maxAge * 1000);
+
+    // Lưu session vào HTTP-only cookie, an toàn, thời hạn 1 năm
     redirectResponse.cookies.set('scan_to_qr_session', encryptedSession, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, // 30 ngày
+      maxAge: maxAge,
+      expires: expires,
       path: '/',
     });
 
