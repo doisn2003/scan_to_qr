@@ -10,7 +10,6 @@ import {
   Download,
   Trash2,
   ExternalLink,
-  LogOut,
   QrCode,
   X,
   Check,
@@ -128,6 +127,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowBottomSheet(false);
     if (e.target.files && e.target.files[0]) {
       validateAndUploadFile(e.target.files[0]);
     }
@@ -153,27 +153,22 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   // Kích hoạt các thẻ input ẩn chuyên dụng cho Mobile
   const triggerCamera = () => {
     setShowBottomSheet(false);
-    setTimeout(() => {
-      cameraInputRef.current?.click();
-    }, 50);
+    cameraInputRef.current?.click();
   };
 
   const triggerGallery = () => {
     setShowBottomSheet(false);
-    setTimeout(() => {
-      galleryInputRef.current?.click();
-    }, 50);
+    galleryInputRef.current?.click();
   };
 
   const triggerFileExplorer = () => {
     setShowBottomSheet(false);
-    setTimeout(() => {
-      fileExplorerInputRef.current?.click();
-    }, 50);
+    fileExplorerInputRef.current?.click();
   };
 
   // Validate File & Upload
   const validateAndUploadFile = async (file: File) => {
+    setShowBottomSheet(false);
     setErrorMsg('');
     const allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
@@ -328,7 +323,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </span>
           </div>
 
-          {/* User Profile & Logout */}
+          {/* User Profile */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3 glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-white/90 shadow-sm">
               {user.avatar_url ? (
@@ -344,14 +339,6 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               )}
               <span className="text-xs font-semibold text-slate-700 hidden md:inline">{user.name}</span>
             </div>
-            
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-xl border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 text-slate-500 hover:text-rose-600 shadow-sm transition-all duration-200 cursor-pointer"
-              title="Đăng xuất"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </nav>
@@ -477,7 +464,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   </h2>
                   <p className="text-slate-550 text-xs mt-0.5 font-medium">Danh sách các file và QR code đã chuyển đổi trước đây.</p>
                 </div>
-                <div className="text-xs text-slate-650 font-bold glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-slate-50 shadow-sm">
+                <div className="text-[10px] text-slate-650 font-bold glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-slate-50 shadow-sm">
                   {history.length} tệp
                 </div>
               </div>
