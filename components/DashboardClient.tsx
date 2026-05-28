@@ -41,7 +41,12 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ user }: DashboardClientProps) {
   const router = useRouter();
+  
+  // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const fileExplorerInputRef = useRef<HTMLInputElement>(null);
 
   // States
   const [dragActive, setDragActive] = useState(false);
@@ -59,6 +64,9 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     webViewLink: string;
     qrCode: string;
   } | null>(null);
+  
+  // Bottom Sheet Mobile State
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
   
   // Copy Link Alert State
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -125,8 +133,43 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     }
   };
 
+  // Kiểm tra thiết bị di động
+  const isMobile = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  };
+
+  // Khi click nút Tải lên chính
   const onButtonClick = () => {
-    fileInputRef.current?.click();
+    if (isMobile()) {
+      setShowBottomSheet(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  // Kích hoạt các thẻ input ẩn chuyên dụng cho Mobile
+  const triggerCamera = () => {
+    setShowBottomSheet(false);
+    setTimeout(() => {
+      cameraInputRef.current?.click();
+    }, 50);
+  };
+
+  const triggerGallery = () => {
+    setShowBottomSheet(false);
+    setTimeout(() => {
+      galleryInputRef.current?.click();
+    }, 50);
+  };
+
+  const triggerFileExplorer = () => {
+    setShowBottomSheet(false);
+    setTimeout(() => {
+      fileExplorerInputRef.current?.click();
+    }, 50);
   };
 
   // Validate File & Upload
@@ -244,7 +287,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     }
   };
 
-  // Rút gọn tên file quá dài (tăng độ dài tối đa lên 45 ký tự)
+  // Rút gọn tên file quá dài
   const truncateFileName = (name: string, maxLen = 45) => {
     if (name.length <= maxLen) return name;
     const parts = name.split('.');
@@ -273,7 +316,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-50/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-purple-50/5 blur-[120px] pointer-events-none" />
 
-      {/* Navigation Header - Sáng & Trong suốt */}
+      {/* Navigation Header */}
       <nav className="w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -324,10 +367,10 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           </div>
         </div>
 
-        {/* Cấu trúc Grid mới: Chia đôi 50:50 (lg:grid-cols-2) */}
+        {/* Cấu trúc Grid 50:50 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Left Column: Upload Section - Chiếm đúng 50% */}
+          {/* Left Column: Upload Section */}
           <div className="lg:col-span-1 flex flex-col gap-6">
             <div className="glass-card rounded-3xl p-6 relative overflow-hidden shadow-md border border-slate-100/80 bg-white h-full flex flex-col justify-between">
               <div>
@@ -335,9 +378,9 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   <UploadCloud className="w-5 h-5 text-indigo-600" />
                   Tải tệp tin lên
                 </h2>
-                <p className="text-slate-550 text-xs mb-6 font-medium">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
+                <p className="text-slate-555 text-xs mb-6 font-medium">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
 
-                {/* Drag Drop Area - Vùng kéo thả cực kỳ rộng rãi */}
+                {/* Drag Drop Area */}
                 <div
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
@@ -350,11 +393,40 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       : 'border-slate-200 bg-slate-50/50 hover:border-slate-350 hover:bg-slate-100/30 shadow-inner'
                   } ${uploading ? 'pointer-events-none opacity-60' : ''}`}
                 >
+                  {/* Thẻ input ẩn chính */}
                   <input
                     ref={fileInputRef}
                     type="file"
                     onChange={handleFileChange}
                     accept=".pdf,.png,.jpg,.jpeg"
+                    className="hidden"
+                  />
+
+                  {/* Thẻ input ẩn chuyên dụng cho Camera Mobile */}
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                  />
+
+                  {/* Thẻ input ẩn chuyên dụng cho Thư viện ảnh Mobile */}
+                  <input
+                    ref={galleryInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+
+                  {/* Thẻ input ẩn chuyên dụng cho PDF/Tệp tin Mobile */}
+                  <input
+                    ref={fileExplorerInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="application/pdf"
                     className="hidden"
                   />
 
@@ -378,7 +450,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       </div>
                       <div className="text-center">
                         <p className="text-base font-bold text-slate-700">Kéo thả file vào đây để tạo mã QR</p>
-                        <p className="text-xs text-slate-550 mt-1.5 font-medium">hoặc click để chọn từ máy tính (PDF, PNG, JPG)</p>
+                        <p className="text-xs text-slate-555 mt-1.5 font-medium">hoặc click để chọn từ máy tính (PDF, PNG, JPG)</p>
                       </div>
                     </>
                   )}
@@ -394,7 +466,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </div>
           </div>
 
-          {/* Right Column: Library / History Section - Chiếm đúng 50% */}
+          {/* Right Column: Library / History Section */}
           <div className="lg:col-span-1 flex flex-col gap-6">
             <div className="glass-card rounded-3xl p-6 min-h-[400px] flex flex-col shadow-md border border-slate-100 bg-white">
               <div className="flex items-center justify-between mb-6">
@@ -424,7 +496,6 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   <p className="text-slate-550 text-xs mt-1.5 max-w-sm font-medium">Bạn chưa tạo mã QR nào. Hãy upload file ở cột bên trái để bắt đầu.</p>
                 </div>
               ) : (
-                /* Grid 1 cột giúp tệp tin đủ rộng để hiển thị đầy đủ tên file không bị che khuất */
                 <div className="grid grid-cols-1 gap-3.5 flex-1">
                   {history.map(item => {
                     const isPdf = item.file_name.toLowerCase().endsWith('.pdf');
@@ -433,7 +504,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                         key={item.id}
                         className="glass-card p-3.5 rounded-xl flex flex-col justify-between border-slate-200 bg-white hover:border-slate-350 shadow-sm hover:shadow transition-all duration-300 relative group/card"
                       >
-                        {/* File Icon & Name - Rộng rãi hiển thị tên */}
+                        {/* File Icon & Name */}
                         <div className="flex gap-3 items-center">
                           <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center border ${
                             isPdf ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-blue-50 text-blue-600 border-blue-100'
@@ -443,7 +514,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           
                           <div className="min-w-0 flex-1">
                             <h4
-                              className="font-bold text-sm text-slate-800 truncate hover:text-indigo-600 transition-all duration-150"
+                              className="font-bold text-sm text-slate-800 truncate hover:text-indigo-650 transition-all duration-150"
                               title={item.file_name}
                             >
                               {truncateFileName(item.file_name, 45)}
@@ -460,7 +531,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           </div>
                         </div>
 
-                        {/* Actions - Cân đối và rộng rãi */}
+                        {/* Actions */}
                         <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                           {/* Xem QR */}
                           <button
@@ -523,7 +594,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       {/* Success QR Code Modal */}
       {activeQr && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Blur - Xám mờ nhẹ */}
+          {/* Backdrop Blur */}
           <div
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             onClick={() => setActiveQr(null)}
@@ -609,6 +680,84 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Bottom Sheet dành cho Mobile */}
+      {showBottomSheet && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center md:hidden">
+          {/* Backdrop mờ nhẹ */}
+          <div
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            onClick={() => setShowBottomSheet(false)}
+          />
+
+          {/* Bottom Sheet Container */}
+          <div className="glass-panel w-full bg-white rounded-t-[2.5rem] shadow-2xl relative z-10 border-slate-200/80 p-6 pb-10 animate-slide-up flex flex-col gap-5">
+            {/* Thanh drag bar trang trí ở trên cùng */}
+            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2" />
+
+            <div className="text-center">
+              <h3 className="font-bold text-slate-800 text-lg">Chọn phương thức tải tệp</h3>
+              <p className="text-slate-500 text-xs mt-1 font-medium">Hỗ trợ các định dạng PDF, PNG, JPG</p>
+            </div>
+
+            {/* List 3 Options */}
+            <div className="flex flex-col gap-3.5 mt-2">
+              {/* Option 1: Máy ảnh */}
+              <button
+                onClick={triggerCamera}
+                className="w-full py-4 px-5 rounded-2xl bg-slate-55 border border-slate-200/60 hover:bg-indigo-50/20 hover:border-indigo-150 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-all duration-150 text-left"
+              >
+                <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-650 flex items-center justify-center border border-indigo-100 shrink-0">
+                  <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <span className="font-bold text-slate-800 text-sm block">Chụp ảnh trực tiếp</span>
+                  <span className="text-slate-500 text-[11px] font-medium mt-0.5 block">Kích hoạt Camera của điện thoại để chụp ảnh tài liệu</span>
+                </div>
+              </button>
+
+              {/* Option 2: Thư viện local */}
+              <button
+                onClick={triggerGallery}
+                className="w-full py-4 px-5 rounded-2xl bg-slate-55 border border-slate-200/60 hover:bg-purple-50/20 hover:border-purple-150 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-all duration-150 text-left"
+              >
+                <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-650 flex items-center justify-center border border-purple-100 shrink-0">
+                  <FileImage className="w-5.5 h-5.5" />
+                </div>
+                <div className="text-left">
+                  <span className="font-bold text-slate-800 text-sm block">Mở Thư viện ảnh máy</span>
+                  <span className="text-slate-500 text-[11px] font-medium mt-0.5 block">Truy cập Album/Thư viện ảnh lưu trữ local của thiết bị</span>
+                </div>
+              </button>
+
+              {/* Option 3: Quản lý tệp tin (PDF) */}
+              <button
+                onClick={triggerFileExplorer}
+                className="w-full py-4 px-5 rounded-2xl bg-slate-55 border border-slate-200/60 hover:bg-blue-50/20 hover:border-blue-150 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-all duration-150 text-left"
+              >
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-650 flex items-center justify-center border border-blue-100 shrink-0">
+                  <FileText className="w-5.5 h-5.5" />
+                </div>
+                <div className="text-left">
+                  <span className="font-bold text-slate-800 text-sm block">Mở Quản lý tệp tin (PDF)</span>
+                  <span className="text-slate-500 text-[11px] font-medium mt-0.5 block">Duyệt bộ nhớ trong máy để chọn các tài liệu PDF</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Cancel Button */}
+            <button
+              onClick={() => setShowBottomSheet(false)}
+              className="w-full py-3.5 mt-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm text-center cursor-pointer active:scale-[0.99] transition-all"
+            >
+              Hủy bỏ
+            </button>
           </div>
         </div>
       )}
