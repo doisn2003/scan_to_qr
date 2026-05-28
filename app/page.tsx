@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { decrypt } from '@/lib/encryption';
 import { FileUp, ShieldCheck, Zap, Library } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home({
   searchParams,
 }: {

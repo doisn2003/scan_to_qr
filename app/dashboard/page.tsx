@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { decrypt } from '@/lib/encryption';
 import DashboardClient from '@/components/DashboardClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   // 1. Kiểm tra session bảo mật ở Server-side
   const cookieStore = await cookies();
