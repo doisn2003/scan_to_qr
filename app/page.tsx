@@ -35,8 +35,8 @@ export default async function Home({
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/15 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/15 blur-[120px] pointer-events-none" />
 
-      {/* Header */}
-      <header className="w-full max-w-6xl flex items-center justify-between py-4 z-10">
+      {/* Header - Thiết kế lại Responsive chống tràn trên Mobile */}
+      <header className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 py-4 z-10">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center shadow-lg shadow-indigo-500/10">
             <span className="text-white font-extrabold text-xl">Q</span>
@@ -45,9 +45,9 @@ export default async function Home({
             Tạo Mã <span className="text-indigo-600">QR</span>
           </span>
         </div>
-        <div className="text-sm text-slate-650 flex items-center gap-1.5 glass-panel px-4 py-1.5 rounded-full shadow-sm">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span className="font-medium">Trường mầm non Vĩ Thượng - Xã Tiên Yên - Tỉnh Tuyên Quang</span>
+        <div className="text-xs text-slate-655 flex items-center justify-center gap-1.5 glass-panel px-4 py-2 rounded-2xl md:rounded-full shadow-sm max-w-full flex-wrap text-center leading-relaxed font-semibold">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>Trường mầm non Vĩ Thượng - Xã Tiên Yên - Tỉnh Tuyên Quang</span>
         </div>
       </header>
 

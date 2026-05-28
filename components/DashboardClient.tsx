@@ -311,7 +311,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pb-12 relative bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col pb-12 relative bg-slate-50 text-slate-900 overflow-x-hidden">
       {/* Background Decorator Blur Spheres */}
       <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-50/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-purple-50/5 blur-[120px] pointer-events-none" />

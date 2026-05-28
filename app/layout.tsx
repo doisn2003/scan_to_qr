@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 
@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   description: 'Ứng dụng nội bộ chuyển đổi file PDF, PNG, JPG thành mã QR lưu trữ trực tiếp trên Google Drive cá nhân.',
   keywords: ['qrcode', 'google drive', 'pdf to qr', 'image to qr', 'share file'],
   authors: [{ name: 'ScanToQR Team' }],
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
