@@ -244,13 +244,13 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     }
   };
 
-  // Rút gọn tên file quá dài
-  const truncateFileName = (name: string, maxLen = 30) => {
+  // Rút gọn tên file quá dài (tăng độ dài tối đa lên 45 ký tự)
+  const truncateFileName = (name: string, maxLen = 45) => {
     if (name.length <= maxLen) return name;
     const parts = name.split('.');
     const ext = parts.pop();
     const base = parts.join('.');
-    return `${base.substring(0, maxLen - 8)}...${base.substring(base.length - 4)}.${ext}`;
+    return `${base.substring(0, maxLen - 10)}...${base.substring(base.length - 4)}.${ext}`;
   };
 
   // Xem nhanh QR cũ trong lịch sử
@@ -270,8 +270,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   return (
     <div className="min-h-screen flex flex-col pb-12 relative bg-slate-50 text-slate-900">
       {/* Background Decorator Blur Spheres */}
-      <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-50/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-purple-50/5 blur-[120px] pointer-events-none" />
 
       {/* Navigation Header - Sáng & Trong suốt */}
       <nav className="w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm">
@@ -324,68 +324,69 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Cấu trúc Grid mới: Chia đôi 50:50 (lg:grid-cols-2) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Left Column: Upload Section */}
+          {/* Left Column: Upload Section - Chiếm đúng 50% */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="glass-card rounded-3xl p-6 relative overflow-hidden shadow-md border border-slate-100/80 bg-white">
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500 to-purple-650 opacity-80" />
-              
-              <h2 className="text-lg font-bold mb-1 flex items-center gap-2 text-slate-800">
-                <UploadCloud className="w-5 h-5 text-indigo-600" />
-                Tải tệp tin lên
-              </h2>
-              <p className="text-slate-500 text-xs mb-6 font-medium">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
+            <div className="glass-card rounded-3xl p-6 relative overflow-hidden shadow-md border border-slate-100/80 bg-white h-full flex flex-col justify-between">
+              <div>
+                <h2 className="text-lg font-bold mb-1 flex items-center gap-2 text-slate-800">
+                  <UploadCloud className="w-5 h-5 text-indigo-600" />
+                  Tải tệp tin lên
+                </h2>
+                <p className="text-slate-550 text-xs mb-6 font-medium">Hỗ trợ định dạng PDF, PNG, JPG, JPEG với dung lượng tối đa 25MB.</p>
 
-              {/* Drag Drop Area */}
-              <div
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                onClick={onButtonClick}
-                className={`w-full py-12 px-4 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 ${
-                  dragActive
-                    ? 'border-indigo-500 bg-indigo-50/50 scale-[0.99]'
-                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-350 hover:bg-slate-100/30 shadow-inner'
-                } ${uploading ? 'pointer-events-none opacity-60' : ''}`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileChange}
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  className="hidden"
-                />
+                {/* Drag Drop Area - Vùng kéo thả cực kỳ rộng rãi */}
+                <div
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={onButtonClick}
+                  className={`w-full py-20 px-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-6 cursor-pointer transition-all duration-300 min-h-[300px] ${
+                    dragActive
+                      ? 'border-indigo-500 bg-indigo-50/50 scale-[0.99]'
+                      : 'border-slate-200 bg-slate-50/50 hover:border-slate-350 hover:bg-slate-100/30 shadow-inner'
+                  } ${uploading ? 'pointer-events-none opacity-60' : ''}`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    className="hidden"
+                  />
 
-                {uploading ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
-                    <span className="text-sm font-bold text-slate-700">Đang tải tệp lên Drive...</span>
-                    
-                    {/* Progress Bar */}
-                    <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2 border border-slate-200">
-                      <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-650 transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
+                  {uploading ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                      <span className="text-sm font-bold text-slate-700">Đang tải tệp lên Drive...</span>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2 border border-slate-200">
+                        <div
+                          className="h-full bg-gradient-to-r from-indigo-500 to-purple-650 transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-300">
-                      <UploadCloud className="w-7 h-7 text-slate-500" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-bold text-slate-700">Kéo thả tệp tin vào đây</p>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">hoặc click để chọn từ thiết bị</p>
-                    </div>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm group-hover:scale-110 transition-all duration-300">
+                        <UploadCloud className="w-8 h-8 text-slate-500" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-bold text-slate-700">Kéo thả file vào đây để tạo mã QR</p>
+                        <p className="text-xs text-slate-550 mt-1.5 font-medium">hoặc click để chọn từ máy tính (PDF, PNG, JPG)</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {errorMsg && (
-                <div className="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-150 text-rose-700 text-xs flex items-start gap-2 font-medium">
+                <div className="mt-6 p-3.5 rounded-xl bg-rose-50 border border-rose-150 text-rose-700 text-xs flex items-start gap-2 font-medium">
                   <span className="font-extrabold text-sm shrink-0">⚠</span>
                   <span>{errorMsg}</span>
                 </div>
@@ -393,8 +394,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </div>
           </div>
 
-          {/* Right Column: Library / History Section */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* Right Column: Library / History Section - Chiếm đúng 50% */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
             <div className="glass-card rounded-3xl p-6 min-h-[400px] flex flex-col shadow-md border border-slate-100 bg-white">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -402,10 +403,10 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     <FolderOpen className="w-5 h-5 text-purple-600" />
                     Thư viện QR cá nhân
                   </h2>
-                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Danh sách các file và QR code đã chuyển đổi trước đây.</p>
+                  <p className="text-slate-550 text-xs mt-0.5 font-medium">Danh sách các file và QR code đã chuyển đổi trước đây.</p>
                 </div>
                 <div className="text-xs text-slate-650 font-bold glass-panel px-3 py-1.5 rounded-full border-slate-200 bg-slate-50 shadow-sm">
-                  {history.length} tệp tin
+                  {history.length} tệp
                 </div>
               </div>
 
@@ -420,23 +421,24 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     <QrCode className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-slate-700">Thư viện trống</h3>
-                  <p className="text-slate-550 text-xs mt-1 max-w-sm font-medium">Bạn chưa tạo mã QR nào. Hãy kéo thả file ở cột bên trái để bắt đầu chia sẻ file.</p>
+                  <p className="text-slate-550 text-xs mt-1.5 max-w-sm font-medium">Bạn chưa tạo mã QR nào. Hãy upload file ở cột bên trái để bắt đầu.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                /* Grid 1 cột giúp tệp tin đủ rộng để hiển thị đầy đủ tên file không bị che khuất */
+                <div className="grid grid-cols-1 gap-3.5 flex-1">
                   {history.map(item => {
                     const isPdf = item.file_name.toLowerCase().endsWith('.pdf');
                     return (
                       <div
                         key={item.id}
-                        className="glass-card p-4 rounded-2xl flex flex-col justify-between border-slate-200 bg-white hover:border-slate-300 shadow-sm hover:shadow-md transition-all duration-300 relative group/card"
+                        className="glass-card p-3.5 rounded-xl flex flex-col justify-between border-slate-200 bg-white hover:border-slate-350 shadow-sm hover:shadow transition-all duration-300 relative group/card"
                       >
-                        {/* File Icon & Name */}
-                        <div className="flex gap-3 items-start">
-                          <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
+                        {/* File Icon & Name - Rộng rãi hiển thị tên */}
+                        <div className="flex gap-3 items-center">
+                          <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center border ${
                             isPdf ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                           }`}>
-                            {isPdf ? <FileText className="w-5 h-5" /> : <FileImage className="w-5 h-5" />}
+                            {isPdf ? <FileText className="w-4.5 h-4.5" /> : <FileImage className="w-4.5 h-4.5" />}
                           </div>
                           
                           <div className="min-w-0 flex-1">
@@ -444,7 +446,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                               className="font-bold text-sm text-slate-800 truncate hover:text-indigo-600 transition-all duration-150"
                               title={item.file_name}
                             >
-                              {truncateFileName(item.file_name, 26)}
+                              {truncateFileName(item.file_name, 45)}
                             </h4>
                             <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
                               {new Date(item.created_at).toLocaleDateString('vi-VN', {
@@ -458,8 +460,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex gap-2 mt-5 pt-3.5 border-t border-slate-100">
+                        {/* Actions - Cân đối và rộng rãi */}
+                        <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                           {/* Xem QR */}
                           <button
                             onClick={() => handlePreviewOldQr(item)}
@@ -571,7 +573,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 {/* Tải QR */}
                 <button
                   onClick={() => handleDownloadQr(activeQr.qrCode, activeQr.fileName)}
-                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-650 hover:opacity-95 text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] transition-all duration-150 col-span-1"
+                  className="py-3 px-4 rounded-xl gradient-button text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] transition-all duration-150 col-span-1"
                 >
                   <Download className="w-4.5 h-4.5" />
                   Tải QR xuống
