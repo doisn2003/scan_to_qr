@@ -243,14 +243,37 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     }
   };
 
-  // Tải xuống mã QR
-  const handleDownloadQr = (qrBase64: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = qrBase64;
-    link.download = `QR_${fileName.split('.')[0]}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Tải xuống mã QR (Hỗ trợ cả Base64 và Ảnh từ xa qua Blob để tránh lỗi CORS nhảy tab)
+  const handleDownloadQr = async (qrCodeUrl: string, fileName: string) => {
+    try {
+      if (qrCodeUrl.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = qrCodeUrl;
+        link.download = `QR_${fileName.split('.')[0]}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      // Đối với ảnh từ server ngoài, tải về dạng Blob để ép trình duyệt lưu file thay vì mở tab mới
+      const res = await fetch(qrCodeUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `QR_${fileName.split('.')[0]}.png`;
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Lỗi khi tải xuống mã QR:', err);
+      // Phương án dự phòng: Mở tab mới nếu xảy ra lỗi
+      window.open(qrCodeUrl, '_blank');
+    }
   };
 
   // Xóa mã QR & File trên Google Drive
